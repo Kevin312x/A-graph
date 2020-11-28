@@ -1,0 +1,18 @@
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.grid-container {
+    display: grid;
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+}
+
+.cell {
+    border: 1px solid black;
+}
