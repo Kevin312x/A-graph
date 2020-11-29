@@ -16,3 +16,15 @@
 .cell {
     border: 1px solid black;
 }
+
+.wall {
+    background-color: #dddddd;
+}
+
+.start {
+    background-color: green;
+}
+
+.end {
+    background-color: red;
+}
