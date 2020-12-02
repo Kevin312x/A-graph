@@ -86,20 +86,24 @@ function create_grid() {
     });
 }
 
+// A* Pathfinding Algorithm
 async function astar_pathfinding() {
     if(!start_cell || !end_cell) { return; }
-    start_cell.g_cost = 0;
-    start_cell.h_cost = 0;
-    start_cell.f_cost = 0;
+    start_cell.g_cost = 0; // Init g_cost to 0
+    start_cell.h_cost = 0; // Init h_cost to 0
+    start_cell.f_cost = 0; // Init f_cost to 0
 
+    // Open and closed (visited) array of cells
     let open = [];
     let closed = [];
     open.push(start_cell)
 
+    // Loop
     while(true) {
         let f_cost_low = open[0];
         let f_cost_pos = 0;
 
+        // Finds the cell with the lowest F_cost among the open cells
         for(let i = 1; i < open.length; ++i) {
             if(open[i].f_cost < f_cost_low.f_cost) {
                 f_cost_low = open[i];
@@ -107,11 +111,14 @@ async function astar_pathfinding() {
             }
         }
 
+        // Removes cell from the open array and add to the closed array
         open.splice(f_cost_pos, 1);
         closed.push(f_cost_low);
 
+        // Breaks out of loop once we've reached the end cell
         if(f_cost_low == end_cell) { break; }
 
+        // Find all neighoring nodes of the current lowest f_cost cell
         let neighbors = [];
         let pn_x_axis = [f_cost_low.x_pos - 1, f_cost_low.x_pos, f_cost_low.x_pos + 1];
         let pn_y_axis = [f_cost_low.y_pos - 1, f_cost_low.y_pos, f_cost_low.y_pos + 1];
@@ -126,14 +133,18 @@ async function astar_pathfinding() {
             }
         }
 
+        // For each neighbor, calculate the g, h, and f cost
         for(let i = 0; i < neighbors.length; ++i) {
+            // Skip if neighbor is a wall cell or if we've visited the cell before
             if(wall_cells.has(neighbors[i]) || closed.includes(neighbors[i])) { continue; }
             document.getElementById(`${neighbors[i].x_pos} ${neighbors[i].y_pos}`).classList.add('visited');
 
+            // Calculates the costs
             let g_cost = f_cost_low.g_cost + calc_dist(f_cost_low, neighbors[i]);
             let h_cost = calc_dist(end_cell, neighbors[i]);
             let f_cost = g_cost + h_cost;
 
+            // If calculated f_cost is lower than previous f_cost, assign new costs to cell
             if(f_cost < neighbors[i].f_cost) {
                 neighbors[i].g_cost = g_cost;
                 neighbors[i].h_cost = h_cost;
@@ -141,11 +152,13 @@ async function astar_pathfinding() {
                 neighbors[i].parent_cell = f_cost_low;
             }
 
+            // Push neighbor cells into open array
             if(!open.includes(neighbors[i])) { open.push(neighbors[i]) }
         }
         await sleep(25);
     }
 
+    // Traces path from end cell to start cell using parents
     if(end_cell.parent_cell != null) {
         let traverse_cell = end_cell.parent_cell;
         do {
@@ -154,6 +167,8 @@ async function astar_pathfinding() {
             traverse_cell = traverse_cell.parent_cell;
         } while(traverse_cell != start_cell);
     }
+
+    return;
 }
 
 // Calculates distances
@@ -165,39 +180,48 @@ function calc_dist(first_cell, second_cell) {
     return Math.floor(h_cost_estimation);
 }
 
-
+// Clears the grid
 function clear_grid() {
+    // Reset start and end cell
     start_cell = undefined;
     end_cell = undefined;
 
+    // Select all cell elements
     const cells_list = document.querySelectorAll('.cell');
+    // For each cell, if they have any additional classes, remove them
     cells_list.forEach((cell) => {
         if(cell.classList.length > 1) { cell.classList = "cell" }
     });
 
+    // For each cell, create a new cell object with same coordinates
     for(let i = 0; i < cells_list_2d.length; ++i) {
         for(let j = 0; j < cells_list_2d[0].length; ++j) {
             cells_list_2d[i][j] = new Cell(i, j);
         }
     }
     
-    wall_cells = new Set;
+    wall_cells = new Set; // Remove contents of wall cells array
 }
 
+// Resets the grid
 function reset_grid() {
+    // Remove visited class from end cell
     document.getElementById(`${end_cell.x_pos} ${end_cell.y_pos}`).classList.remove('visited');
-    end_cell = new Cell(end_cell.x_pos, end_cell.y_pos);
-    cells_list_2d[end_cell.x_pos][end_cell.y_pos] = end_cell
+    end_cell = new Cell(end_cell.x_pos, end_cell.y_pos); // Assigns end cell to a new cell with same coordinates
+    cells_list_2d[end_cell.x_pos][end_cell.y_pos] = end_cell // Reflect changes onto the 2d array
 
+    // Select all elements with visited class
     const visited_cells = document.querySelectorAll('.visited');
+    // Loops through each cell and creates a new cell with same position and reflect changes to 2d array
     visited_cells.forEach((cell) => {
         let pos = cell.getAttribute('id').split(' ');
         console.log(pos[0], pos[1])
         cells_list_2d[pos[0]][pos[1]] = new Cell(parseInt(pos[0]), parseInt(pos[1]));
-        cell.classList = 'cell';
+        cell.classList = 'cell'; // Removes visited and/or path class from element
     });
 }
 
+// Sleep function to delay next A* pathing iteration
 function sleep(ms) {
     return new Promise((resolve) => { setTimeout(resolve, ms); })
 }
