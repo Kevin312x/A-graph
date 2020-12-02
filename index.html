@@ -7,9 +7,15 @@
     <title>A* Grid</title>
 </head>
 <body>
-    <div class="title">Grid</div>
-    <div class="grid-container"></div>
-    <button onclick="check();">check</button>
+    <h1 class="title">Grid</h1>
+    <div class="wrapper">
+        <div class="grid-container"></div>
+        <div class="button-wrapper">
+            <button onclick="astar_pathfinding();">Start</button>
+            <button onclick="reset_grid();">Reset</button>
+            <button onclick="clear_grid();">Clear</button>
+        </div>
+    </div>
     <script src="./main.js"></script>
 </body>
 </html>

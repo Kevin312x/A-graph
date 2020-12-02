@@ -52,8 +52,8 @@ function create_grid() {
 
                 // Retrieves the x and y position from the id of the element
                 let pos = ele.attributes.id.value.split(' ');
-                let x_pos = pos[0];
-                let y_pos = pos[1];
+                let x_pos = parseInt(pos[0]);
+                let y_pos = parseInt(pos[1]);
 
                 // Add the cell object containing both the x and y pos to wall_cells
                 wall_cells.add(cells_list_2d[x_pos][y_pos]); 
@@ -66,8 +66,8 @@ function create_grid() {
 
             // Retrieves the x and y position from the id of the element
             let pos = ele.attributes.id.value.split(' ');
-            let x_pos = pos[0];
-            let y_pos = pos[1];
+            let x_pos = parseInt(pos[0]);
+            let y_pos = parseInt(pos[1]);
 
             if(e.ctrlKey) {
                 let prev_start_cell = document.querySelector('.start');
@@ -86,7 +86,8 @@ function create_grid() {
     });
 }
 
-function astar_pathfinding() {
+async function astar_pathfinding() {
+    if(!start_cell || !end_cell) { return; }
     start_cell.g_cost = 0;
     start_cell.h_cost = 0;
     start_cell.f_cost = 0;
@@ -142,13 +143,14 @@ function astar_pathfinding() {
 
             if(!open.includes(neighbors[i])) { open.push(neighbors[i]) }
         }
+        await sleep(25);
     }
 
     if(end_cell.parent_cell != null) {
         let traverse_cell = end_cell.parent_cell;
         do {
             let path_cell = document.getElementById(`${traverse_cell.x_pos} ${traverse_cell.y_pos}`);
-            path_cell.style.backgroundColor = 'cyan';
+            path_cell.classList.add('path');
             traverse_cell = traverse_cell.parent_cell;
         } while(traverse_cell != start_cell);
     }
@@ -163,10 +165,41 @@ function calc_dist(first_cell, second_cell) {
     return Math.floor(h_cost_estimation);
 }
 
-function check() {
-    console.log(wall_cells);
-    console.log('Start', start_cell)
-    console.log('End', end_cell)
+
+function clear_grid() {
+    start_cell = undefined;
+    end_cell = undefined;
+
+    const cells_list = document.querySelectorAll('.cell');
+    cells_list.forEach((cell) => {
+        if(cell.classList.length > 1) { cell.classList = "cell" }
+    });
+
+    for(let i = 0; i < cells_list_2d.length; ++i) {
+        for(let j = 0; j < cells_list_2d[0].length; ++j) {
+            cells_list_2d[i][j] = new Cell(i, j);
+        }
+    }
+    
+    wall_cells = new Set;
+}
+
+function reset_grid() {
+    document.getElementById(`${end_cell.x_pos} ${end_cell.y_pos}`).classList.remove('visited');
+    end_cell = new Cell(end_cell.x_pos, end_cell.y_pos);
+    cells_list_2d[end_cell.x_pos][end_cell.y_pos] = end_cell
+
+    const visited_cells = document.querySelectorAll('.visited');
+    visited_cells.forEach((cell) => {
+        let pos = cell.getAttribute('id').split(' ');
+        console.log(pos[0], pos[1])
+        cells_list_2d[pos[0]][pos[1]] = new Cell(parseInt(pos[0]), parseInt(pos[1]));
+        cell.classList = 'cell';
+    });
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => { setTimeout(resolve, ms); })
 }
 
 create_grid();
