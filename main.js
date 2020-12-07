@@ -47,16 +47,18 @@ function create_grid() {
     cells.forEach((cell) => {
         cell.addEventListener('mouseover', (e) => {
             if(is_down) {
-                let ele = e.target;
-                cell.classList.add('wall');
+                if(!cell.classList.contains('start') && !cell.classList.contains('end')) {
+                    let ele = e.target;
+                    cell.classList.add('wall');
 
-                // Retrieves the x and y position from the id of the element
-                let pos = ele.attributes.id.value.split(' ');
-                let x_pos = parseInt(pos[0]);
-                let y_pos = parseInt(pos[1]);
+                    // Retrieves the x and y position from the id of the element
+                    let pos = ele.attributes.id.value.split(' ');
+                    let x_pos = parseInt(pos[0]);
+                    let y_pos = parseInt(pos[1]);
 
-                // Add the cell object containing both the x and y pos to wall_cells
-                wall_cells.add(cells_list_2d[x_pos][y_pos]); 
+                    // Add the cell object containing both the x and y pos to wall_cells
+                    wall_cells.add(cells_list_2d[x_pos][y_pos]);
+                }
             }
         });
 
@@ -83,6 +85,23 @@ function create_grid() {
                 end_cell = cells_list_2d[x_pos][y_pos];
             }
         });
+
+        cell.addEventListener('mousedown', (e) => {
+            if(!e.ctrlKey && !e.altKey) {
+                if(!cell.classList.contains('start') && !cell.classList.contains('end')) {
+                    // Selects the element
+                    let ele = e.target;
+
+                    // Retrieves the x and y position from the id of the element
+                    let pos = ele.attributes.id.value.split(' ');
+                    let x_pos = parseInt(pos[0]);
+                    let y_pos = parseInt(pos[1]);
+
+                    cell.classList.add('wall');
+                    wall_cells.add(cells_list_2d[x_pos][y_pos]);
+                }
+            }
+        })
     });
 }
 
