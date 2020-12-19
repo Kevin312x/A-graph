@@ -9,6 +9,13 @@
 <body>
     <h1 class="title">Grid</h1>
     <div class="wrapper">
+        <div class="form-container">
+            <form class="grid-form" onsubmit="return false;">
+                <label>Grid Size:&nbsp;</label>
+                <input type="number" placeholder="0" id="grid-size">
+                <input class="input-btn" type="submit" onclick="resize();">
+            </form>
+        </div>
         <div class="grid-container"></div>
         <div class="button-wrapper">
             <button onclick="astar_pathfinding();">Start</button>

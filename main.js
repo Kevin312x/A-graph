@@ -1,6 +1,6 @@
 const grid = document.querySelector('.grid-container');
 
-const cells_list_2d = [];
+let cells_list_2d;
 let wall_cells = new Set;
 let start_cell;
 let end_cell;
@@ -17,10 +17,12 @@ class Cell {
 }
 
 // Creates a grid
-function create_grid() {
-    for(let i = 0; i < 20; ++i) {
+function create_grid(GRID_SIZE = 20) {
+    cells_list_2d = [];
+    document.documentElement.style.setProperty('--grid-size', GRID_SIZE);
+    for(let i = 0; i < GRID_SIZE; ++i) {
         let cells_list_1d = [];
-        for(let j = 0; j < 20; ++j) {
+        for(let j = 0; j < GRID_SIZE; ++j) {
             // Creates a cell element
             let cell = document.createElement('div');
             cell.classList.add('cell');
@@ -105,6 +107,11 @@ function create_grid() {
     });
 }
 
+function remove_grid() {
+    clear_grid();
+    document.querySelectorAll('.cell').forEach((cell) => { grid.removeChild(cell) });
+}
+
 // A* Pathfinding Algorithm
 async function astar_pathfinding() {
     if(!start_cell || !end_cell) { return; }
@@ -144,10 +151,11 @@ async function astar_pathfinding() {
 
         for(let x = 0; x < pn_x_axis.length; ++x) {
             for(let y = 0; y < pn_y_axis.length; ++y) {
-                if(pn_x_axis[x] < 0 || pn_x_axis[x] > 19 || 
-                    pn_y_axis[y] < 0 || pn_y_axis[y] > 19) { continue; }
+                if(pn_x_axis[x] < 0 || pn_x_axis[x] > cells_list_2d.length-1 || 
+                    pn_y_axis[y] < 0 || pn_y_axis[y] > cells_list_2d.length-1) { continue; }
 
                 if(pn_x_axis[x] == f_cost_low.x_pos && pn_y_axis[y] == f_cost_low.y_pos) { continue; }
+                
                 neighbors.push(cells_list_2d[pn_x_axis[x]][pn_y_axis[y]]);
             }
         }
@@ -234,7 +242,6 @@ function reset_grid() {
     // Loops through each cell and creates a new cell with same position and reflect changes to 2d array
     visited_cells.forEach((cell) => {
         let pos = cell.getAttribute('id').split(' ');
-        console.log(pos[0], pos[1])
         cells_list_2d[pos[0]][pos[1]] = new Cell(parseInt(pos[0]), parseInt(pos[1]));
         cell.classList = 'cell'; // Removes visited and/or path class from element
     });
@@ -243,6 +250,12 @@ function reset_grid() {
 // Sleep function to delay next A* pathing iteration
 function sleep(ms) {
     return new Promise((resolve) => { setTimeout(resolve, ms); })
+}
+
+function resize() {
+    const new_size = document.querySelector('#grid-size').value;
+    remove_grid();
+    create_grid(new_size);
 }
 
 create_grid();
